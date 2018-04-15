@@ -1,1 +1,1 @@
-# All the lab for CST8216 Processor Architecture
+# All the code and design lab for CST8216 Processor Architecture
