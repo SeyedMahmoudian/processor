@@ -1,0 +1,27 @@
+; Demo.txt
+; Terms Test 1, 2 and Final Exam
+; Assignment 1 - 4 and Hybrid Average
+
+; Student A
+			db	10,4,12
+			db	10,10,10,4,9
+; Student B
+			db	7,8,20			
+			db	3,0,4,4,3
+; Student C
+			db	6,6,21
+			db	1,9,8,7,3
+; Student D
+			db	5,5,25
+			db	5,5,5,5,6
+; Student E
+			db	4,6,0
+			db	0,0,8,7,0
+; Student F
+			db	4,6,28
+			db	9,9,8,7,9
+
+
+
+			
+
