@@ -1,0 +1,31 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ;The_Stack.asm
+2000                    Stack   equ     $2000
+                        
+1000                            org     $1000
+1000 19 fe 32 c4 65     Data    db      $19, $FE, $32, $C4, $65
+                        
+2000                            org     $2000
+2000 cf 20 00                   lds     #Stack
+                        
+2003 cd 10 00                   ldy     #Data
+2006 a6 41                      ldaa    1,y
+2008 e6 70                      ldab    1,y+
+200a 37                         pshb
+200b 36                         psha
+200c 35                         pshy
+200d 16 20 14                   jsr     Here
+2010 31                         puly
+2011 3a                         puld
+2012 20 05                      bra     Finish
+2014 f6 10 03           Here    ldab    Data+3
+2017 03                         dey
+2018 3d                         rts
+2019 3f                 Finish  swi
+                                end
+
+Executed: Thu Apr 12 11:11:03 2018
+Total cycles: 53, Total bytes: 31
+Total errors: 0, Total warnings: 0

@@ -1,0 +1,37 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ; Math_Operations.asm
+                        ;
+                        ; Author:         D. Haley
+                        ; Student Number: nnn-nnn-nnn
+                        ; Date:           22 Feb 2018
+                        ;
+                        ;  Purpose:        To Gain Experience with Assembly Language instructions
+                        
+                        ; Program Constants
+2000                    STACK   equ     $2000
+                        
+1000                    	org     $1000           ; Data starts at $1000
+1000 0c 81              MyArray db      $0C,$81
+1002                    Result  ds      2
+                        
+2000                            org     $2000           ; Program Code starts at $2000
+2000 cf 20 00           Start   lds     #STACK          ; Setup the stack
+                        
+2003 86 25                      ldaa    #$25            ; Note: This code is purposely NOT documented
+2005 c6 19                      ldab    #25
+2007 bb 10 00                   adda    MyArray
+200a 7a 10 02                   staa    Result
+200d 7b 10 03                   stab    Result+1
+2010 b6 10 03                   ldaa    Result+1
+2013 f6 10 02                   ldab    Result
+2016 52                         incb
+2017 86 aa                      ldaa    #%10101010
+2019 7c 10 02                   std     Result
+201c 3f                         swi
+                                end
+
+Executed: Sat Mar 10 13:49:13 2018
+Total cycles: 47, Total bytes: 31
+Total errors: 0, Total warnings: 0

@@ -1,0 +1,60 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ; Unsigned_Selection_Sort.asm
+                        ; ;group Members
+                        ;Todd Hakvoort, Seyedamin Seyedmahmoudian, Ryan Brooks
+                        ; Course:
+                        ; S/N:
+                        ; Date:
+                        ; Purpose
+                        
+                        ; Program Constants
+2000                    STACK              equ     $2000
+                        
+                        
+                        ; Program data
+1000                                       org     $1000
+1000 08 04 05 0e 09 05  Start_Array       db      $08, $04, $05, $0e, $09, $05, $08, $08, $0d
+     08 08 0d
+1009                    End_Array
+                        
+1009 00 00              Holder            dw       $0000
+                        
+                        ;program start
+                        
+2000                                       org     $2000
+2000 cf 20 00                              lds     #STACK
+                        
+2003 ce 10 00                              ldx     #Start_Array;x will be the value we are checking
+2006 cd 10 00                              ldy     #Start_Array;y will be the place in the array
+                        
+                        ;swap x with y
+2009 a6 00              Start_Swap         ldaa    0,x
+200b e6 40                                 ldab    0,y
+200d 6a 40                                 staa    0,y
+200f 6b 00                                 stab    0,x
+2011                    End_Swap
+                        
+2011                    Start_Loop
+                        ;if x is smaller then y so swap, increment x after,
+2011 a6 00                                 ldaa    0,x
+2013 a1 40                                 cmpa    0,y
+2015 25 f2                                 blo     #Start_Swap
+2017 08                                    inx
+                        ;if x != End_Array bring x to Start_Loop else increment y and bring x to y
+2018 8e 10 09                              cpx     #End_Array
+201b 25 f4                                 blo     #Start_Loop
+201d 02                                    iny
+201e 7d 10 09                              sty     Holder
+2021 fe 10 09                              ldx     Holder
+                        ;if y = End_Array end, else go back to start of loop
+2024 8d 10 09                              cpy     #End_Array
+2027 25 e8                                 blo     #Start_Loop
+                        
+2029 3f                                    swi
+                                           end
+
+Executed: Fri Apr 13 11:09:26 2018
+Total cycles: 54, Total bytes: 53
+Total errors: 0, Total warnings: 0
