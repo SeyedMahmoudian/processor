@@ -16,8 +16,11 @@
 ; Program Constants
 DELAY_VALUE     equ     250
 STACK           equ     $2000
+
 DIGIT3_PP0      equ     %0111
+
 BLANK           equ     1
+
 PRACTICAL       equ     5       ; number of practical assesments
 THEORY          equ     3       ; number of theory assesments
 
@@ -37,7 +40,7 @@ Start_Course_Data
 End_Course_Data
 
 Students_Marks
-        ds      (End_Course_Data - Start_Course_Data)/(PRACTICAL+THEORY)
+        ds      (End_Course_Data-Start_Course_Data)/(PRACTICAL+THEORY)
 End_Students_Marks
 
 ; code section
@@ -48,9 +51,9 @@ End_Students_Marks
         
         ldy     #Start_Course_Data  ; Point y to the beginning of file
 
-	ldx     #Students_Marks     ; Point x to the beginning of array
+        ldx     #Students_Marks     ; Point x to the beginning of array
 
-Next
+Next_Student
         cpx     #End_Students_Marks     ;End of students
         bhs     Display_Mark            ;pass/fail array?
         pshx
@@ -74,7 +77,7 @@ Next
         ldab    #THEORY         ; Move y to point the next
         aby                     ; students practical data
         
-        pulx            	; Save student final grades
+        pulx                    ; Save student final grades
         anda    0,x             ; AND the grade in A with the
         staa    1,x+            ; Student's practical grade
         pshx
@@ -83,9 +86,43 @@ Next
 Display_Mark
         ldx     #Students_Marks
 Next_Display
-        ldab    #DIGIT_PP0
+        ldab    #DIGIT3_PP0
+        cpx     #End_Students_Marks
+        bhs     Done
+        
+        ldaa    1,x+
+        pshx
+        jsr     PF_HEX_DISPLAY
+        ;Keep pass or fail on display for 1 second
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
 
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
 
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+        ; blank display for 1 second
+        ldaa    #BLANK
+        jsr     PF_HEX_Display
+
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+
+        ldaa    #DELAY_VALUE
+        jsr     Delay_ms
+        
+        pulx
+        bra     Next_Display
 Done    bra     Done                            ; yes
 
 #include Calculate_Average.asm
