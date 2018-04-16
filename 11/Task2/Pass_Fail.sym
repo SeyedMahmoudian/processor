@@ -1,0 +1,5 @@
+fail       0005
+min        0005
+pass       0009
+pass_fail  0000
+return     000b

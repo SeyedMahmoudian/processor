@@ -22,6 +22,7 @@
 ; Constant
 MIN     equ     5 ; Average must be at leas 50 to pass the class
 
+;code
 Pass_Fail
         cpx     #MIN
         bhs     Pass

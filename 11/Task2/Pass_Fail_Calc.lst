@@ -655,9 +655,7 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
 1000                                    org     $1000
                         ; Read in Data File
 1000                    Start_Course_Data
-                        ; place a comment symbol (;) in front of "#include Demo.txt" and then
-                        ; remove the comment symbol (;) to unmask your lab section's include statement
-                        #include "Demo.txt"                            ; Result = P F P P F P -> same data as in Video
+                        #include "Demo.txt"
                         ; Demo.txt
                         ; Terms Test 1, 2 and Final Exam
                         ; Assignment 1 - 4 and Hybrid Average
@@ -687,11 +685,8 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         
                         #endinclude
 
-                                                                ; where P = Pass, F = Fail
-                        ; #include "Wed_10-12_Marks.txt"
+                        ;uncomment following line for final demo
                         ; #include "Thu_10-12_Marks.txt"
-                        ; #include "Thu_5-7_Marks.txt"
-                        
 1030                    End_Course_Data
                         
 1030                    Students_Marks
@@ -701,11 +696,8 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         ; code section
 2000                            org     $2000           ; RAM address for Code
 2000 cf 20 00                   lds     #STACK          ; Stack
-                        
-2003 16 20 ad                   jsr     Config_Hex_Displays ; Configure HEX display by calling the subrotin
-                                
+2003 16 20 af                   jsr     Config_Hex_Displays ; Configure HEX display by calling the subrotin
 2006 cd 10 00                   ldy     #Start_Course_Data  ; Point y to the beginning of file
-                        
 2009 ce 10 30                   ldx     #Students_Marks     ; Point x to the beginning of array
                         
 200c                    Next_Student
@@ -747,34 +739,34 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                                 
 2040 a6 30                      ldaa    1,x+
 2042 34                         pshx
-2043 16 20 a2                   jsr     PF_HEX_DISPLAY
+2043 16 20 a4                   jsr     PF_HEX_DISPLAY
                                 ;Keep pass or fail on display for 1 second
 2046 86 fa                      ldaa    #DELAY_VALUE
-2048 16 20 b5                   jsr     Delay_ms
+2048 16 20 b7                   jsr     Delay_ms
                         
 204b 86 fa                      ldaa    #DELAY_VALUE
-204d 16 20 b5                   jsr     Delay_ms
+204d 16 20 b7                   jsr     Delay_ms
                         
 2050 86 fa                      ldaa    #DELAY_VALUE
-2052 16 20 b5                   jsr     Delay_ms
+2052 16 20 b7                   jsr     Delay_ms
                         
 2055 86 fa                      ldaa    #DELAY_VALUE
-2057 16 20 b5                   jsr     Delay_ms
+2057 16 20 b7                   jsr     Delay_ms
                                 ; blank display for 1 second
 205a 86 01                      ldaa    #BLANK
-205c 16 20 a2                   jsr     PF_HEX_Display
+205c 16 20 a4                   jsr     PF_HEX_Display
                         
 205f 86 fa                      ldaa    #DELAY_VALUE
-2061 16 20 b5                   jsr     Delay_ms
+2061 16 20 b7                   jsr     Delay_ms
                         
 2064 86 fa                      ldaa    #DELAY_VALUE
-2066 16 20 b5                   jsr     Delay_ms
+2066 16 20 b7                   jsr     Delay_ms
                         
 2069 86 fa                      ldaa    #DELAY_VALUE
-206b 16 20 b5                   jsr     Delay_ms
+206b 16 20 b7                   jsr     Delay_ms
                         
 206e 86 fa                      ldaa    #DELAY_VALUE
-2070 16 20 b5                   jsr     Delay_ms
+2070 16 20 b7                   jsr     Delay_ms
                                 
 2073 30                         pulx
 2074 20 c3                      bra     Next_Display
@@ -865,6 +857,7 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         ; Constant
 0005                    MIN     equ     5 ; Average must be at leas 50 to pass the class
                         
+                        ;code
 2095                    Pass_Fail
 2095 8e 00 05                   cpx     #MIN
 2098 24 04                      bhs     Pass
@@ -896,19 +889,18 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         ;                       A is destroyed
                         ;
                         ;                 Lookup table for LED segments
-PF_HEX_Display.asm:18: Warning - Missing expression, value of 0 assumed
-20a1 00                 LEDSEG  db
+20a1 71 73 80           LEDSEG  db        $71,$73,$80
                         ;                 F,  P, <blank>
-20a2                    PF_Hex_Display
-20a2 ce 20 a1                   ldx     #LEDSEG         ; Point to start of lookup table
-20a5 a6 e4                      ldaa    a,x             ; Effective address is sum of contents
+20a4                    PF_Hex_Display
+20a4 ce 20 a1                   ldx     #LEDSEG         ; Point to start of lookup table
+20a7 a6 e4                      ldaa    a,x             ; Effective address is sum of contents
                                                         ; of registers A and X
-20a7 7b 02 58                   stab    PTP             ; Selected Hex Display (if this is after
+20a9 7b 02 58                   stab    PTP             ; Selected Hex Display (if this is after
                                                         ; staa PORTB
                                                         ; then ALL Hex Dislays will momentarily
                                                         ; flicker the value)
-20aa 5a 01                      staa    PORTB           ; Display value
-20ac 3d                         rts
+20ac 5a 01                      staa    PORTB           ; Display value
+20ae 3d                         rts
                         ; -----------------------------
                         ;        END Hex_Display      -
                         ;------------------------------
@@ -951,11 +943,11 @@ PF_HEX_Display.asm:18: Warning - Missing expression, value of 0 assumed
                         ;    Postcondition:                   -
                         ;        - A is destroyed             -
                         ;--------------------------------------
-20ad                    Config_HEX_Displays
-20ad 86 ff                      ldaa    #$FF    ; port configuration value
-20af 5a 03                      staa    DDRB    ; Make PORTB output - for Hex Displays' values
-20b1 7a 02 5a                   staa    DDRP    ; Make PTP as output - to select correct Hex Display
-20b4 3d                         rts
+20af                    Config_HEX_Displays
+20af 86 ff                      ldaa    #$FF    ; port configuration value
+20b1 5a 03                      staa    DDRB    ; Make PORTB output - for Hex Displays' values
+20b3 7a 02 5a                   staa    DDRP    ; Make PTP as output - to select correct Hex Display
+20b6 3d                         rts
                         ;- --------------------------------
                         ;     End Config_HEX_Displays     -
                         ;----------------------------------
@@ -1010,13 +1002,13 @@ PF_HEX_Display.asm:18: Warning - Missing expression, value of 0 assumed
                         ;        - A destroyed                -
                         ;        - Y destroyed                -
                         ;--------------------------------------
-20b5                    Delay_ms
-20b5 cd 0f a0                   ldy     #24000/6  ; 6000 x 4 = 24,000 cycles = 1ms
-20b8 03                 Delay   dey               ; this instruction takes 1 cycle
-20b9 26 fd                      bne     Delay     ; this instruction takes 3 cycles
-20bb 43                         deca              ; Delayed 1 ms. Are we finished the total delay time?
-20bc 26 f7                      bne     Delay_ms  ; No, delay again
-20be 3d                         rts
+20b7                    Delay_ms
+20b7 cd 0f a0                   ldy     #24000/6  ; 6000 x 4 = 24,000 cycles = 1ms
+20ba 03                 Delay   dey               ; this instruction takes 1 cycle
+20bb 26 fd                      bne     Delay     ; this instruction takes 3 cycles
+20bd 43                         deca              ; Delayed 1 ms. Are we finished the total delay time?
+20be 26 f7                      bne     Delay_ms  ; No, delay again
+20c0 3d                         rts
                         ;- ------------------------------------
                         ;            End Delay_ms             -
                         ;--------------------------------------
@@ -1024,6 +1016,6 @@ PF_HEX_Display.asm:18: Warning - Missing expression, value of 0 assumed
 
                                 end
 
-Executed: Sun Apr 15 15:14:02 2018
-Total cycles: 281, Total bytes: 239
-Total errors: 0, Total warnings: 1
+Executed: Mon Apr 16 19:00:23 2018
+Total cycles: 281, Total bytes: 241
+Total errors: 0, Total warnings: 0

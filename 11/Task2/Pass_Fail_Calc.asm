@@ -29,14 +29,9 @@ THEORY          equ     3       ; number of theory assesments
                 org     $1000
 ; Read in Data File
 Start_Course_Data
-; place a comment symbol (;) in front of "#include Demo.txt" and then
-; remove the comment symbol (;) to unmask your lab section's include statement
-#include "Demo.txt"                            ; Result = P F P P F P -> same data as in Video
-                                        ; where P = Pass, F = Fail
-; #include "Wed_10-12_Marks.txt"
+#include "Demo.txt"
+;uncomment following line for final demo
 ; #include "Thu_10-12_Marks.txt"
-; #include "Thu_5-7_Marks.txt"
-
 End_Course_Data
 
 Students_Marks
@@ -46,11 +41,8 @@ End_Students_Marks
 ; code section
         org     $2000           ; RAM address for Code
         lds     #STACK          ; Stack
-
         jsr     Config_Hex_Displays ; Configure HEX display by calling the subrotin
-        
         ldy     #Start_Course_Data  ; Point y to the beginning of file
-
         ldx     #Students_Marks     ; Point x to the beginning of array
 
 Next_Student

@@ -1,0 +1,43 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ; Pass_Fail.asm
+                        ; Pass_Fail Subroutine
+                        ; Is it a Pass or Fail ?
+                        
+                        ; Author:
+                        ; Student Number:
+                        ; Date:
+                        ;
+                        
+                        ; Purpose:      The purpose of the Pass_Fail_Subroutine is to
+                        ;               determine if the supplied integer is a Pass or a Fail, given:
+                        ;               - a Pass is >= 5
+                        ;               - a Fail is < 5
+                        ;               and return a Pass or Fail indication
+                        
+                        ; Precondition:  Register X contains value to check for pass or fail
+                        ;
+                        ; Postcondition: Overwrite accumulator A with either 0 or 1
+                        ;                0 Indicates that the mark was fail
+                        ;                1 indicate that the mark was pass
+                        
+                        ; Constant
+0005                    MIN     equ     5 ; Average must be at leas 50 to pass the class
+                        
+                        ;code
+0000                    Pass_Fail
+0000 8e 00 05                   cpx     #MIN
+0003 24 04                      bhs     Pass
+0005                    Fail
+0005 86 00                      ldaa    #0
+0007 20 02                      bra     Return
+0009                    Pass
+0009 86 01                      ldaa    #1
+000b                    Return
+000b 3d                         rts
+                        
+
+Executed: Mon Apr 16 19:00:12 2018
+Total cycles: 17, Total bytes: 12
+Total errors: 0, Total warnings: 0

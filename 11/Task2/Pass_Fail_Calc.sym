@@ -207,7 +207,7 @@ can4tier   0287
 can4txfg   02b0
 cforc      0041
 clksel     0039
-config_hex_displays 20ad
+config_hex_displays 20af
 copctl     003c
 crgflg     0037
 crgint     0038
@@ -226,8 +226,8 @@ ddrm       0252
 ddrp       025a
 ddrs       024a
 ddrt       0242
-delay      20b8
-delay_ms   20b5
+delay      20ba
+delay_ms   20b7
 delay_value 00fa
 digit3_pp0 0007
 display_mark 2036
@@ -323,7 +323,7 @@ perm       0254
 perp       025c
 pers       024c
 pert       0244
-pf_hex_display 20a2
+pf_hex_display 20a4
 pieh       0266
 piej       026e
 piep       025e
