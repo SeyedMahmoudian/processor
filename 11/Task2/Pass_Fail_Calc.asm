@@ -19,7 +19,7 @@ STACK           equ     $2000   ; Start of stack.
 
 DIGIT3_PP0      equ     %0111   ; MSB of the displayed BCD digits (left-most dislay)
 
-BLANK_DISPLAY   equ     2       ; Used for the PF_Hex_Display subroutine.
+BLANK_DISPLAY   equ     1       ; Used for the PF_Hex_Display subroutine.
 
 NUM_PRACTICAL   equ     5       ; The number of practical assessments
 NUM_THEORY      equ     3       ; The number of theory assessments.
