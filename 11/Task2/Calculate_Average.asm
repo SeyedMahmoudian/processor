@@ -27,31 +27,31 @@ DIVISOR equ     $05
 
 Calculate_Average
         ldx     #DIVISOR
-        
-        pshy            ;Save value y
-        aby             ;loop from the end of array
-        dey             ;loop back to the beginning
-        
+
+        pshy                 ; Save the value of y
+        aby                  ; This loop starts at the end of the array
+        dey                  ; and works its way to the beginning.
+
         clra
         clrb
 
 Next
-        cpy     0,sp    ;are we at start of array -1 ?
-        blo     Divide  ;divide if so
-        
-        pshd
-        
-        ldab    1,y-    ;Get the value
+        cpy     0,sp         ; Have we reached Start of Array minus 1?
+        blo     Divide       ; Go and divide if we reached the start.
+
+        pshd                 ; Save the value of D
+
+        ldab    1,y-         ; Retrieve the value.
         clra
-        
-        addd     0,sp
-        ins             ;clear up the stack
+
+        addd    0,sp
+        ins                  ; Clear the stack
         ins
-        
-        bra     Next    ;Add the next value
+
+        bra     Next         ; Add the next value
 
 Divide
         idiv
-        puly            ;Get back the orginal value of Y
+        puly                 ; Get back the original value of Y
 
         rts

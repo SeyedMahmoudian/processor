@@ -1,0 +1,2 @@
+extract_lsb 0000
+mask       000f

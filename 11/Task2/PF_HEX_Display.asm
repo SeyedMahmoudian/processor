@@ -15,7 +15,7 @@
 ;                       A is destroyed
 ;
 ;                 Lookup table for LED segments
-LEDSEG  db        $71,$73,$80
+LEDSEG  db        $71, $73, $80
 ;                 F,  P, <blank>
 PF_Hex_Display
         ldx     #LEDSEG         ; Point to start of lookup table

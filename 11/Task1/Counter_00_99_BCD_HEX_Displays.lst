@@ -1,9 +1,9 @@
 
 as12, an absolute assembler for Motorola MCU's, version 1.2h
 
-                        ; Pass_Fail_Calc.asm
+                        ; Counter_00_99_BCD_HEX_Display.asm
                         
-                        #include c:\68hcs12\registers.inc
+                        #include C:\68hcs12\registers.inc
                         ; Memory maps and register equates
                         ; Choose one of DBUG12MAP (normal operation under DBUG12)
                         ;               EEPROMMAP  (DBUG12 in EEPROM mode)
@@ -628,263 +628,57 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         #endinclude
 
                         
-                        ; Author(s) and Student Numbers():
-                        ; Date:
-                        ; Purpose:      Calculate if a student has passed both the Theory and Practical
-                        ;               portions of the course. Display a 'P' if both portions passed;
-                        ;               otherwise, display an 'F'. Display the values for 1 second each
-                        ;               (e.g. 4 delay cycles of 250 ms each) Then, blank the display for
-                        ;               the same amount of time and then continue on with the values.
-                        ;                Once all of the result are displayed, blank the display
+                        ; Author: Todd Hakvoort, Seyedamin Seyedmahmoudian, Ryan Brooks
+                        ; Course: CST8216 Processor Architecture
+                        ; S/N:  Todd-STUDENT-ID,0404813340,Ryan-STUDENT-ID
+                        ; Date: 2018-04-19
                         ;
-                        ;               Note that there is only ONE 'P' or 'F' displayed per student
+                        ; Purpose: Count from 0 to 99 and display the value on HEX Display
                         ;
                         ; Program Constants
-00fa                    DELAY_VALUE     equ     250     ; 250 milliseconds delay time.
-2000                    STACK           equ     $2000   ; Start of stack.
-                        
-0007                    DIGIT3_PP0      equ     %0111   ; MSB of the displayed BCD digits (left-most dislay)
-                        
-0002                    BLANK_DISPLAY   equ     2       ; Used for the PF_Hex_Display subroutine.
-                        
-0005                    NUM_PRACTICAL   equ     5       ; The number of practical assessments
-0003                    NUM_THEORY      equ     3       ; The number of theory assessments.
-                        
-                        
-                        
-                        
-                        ; data section
-1000                                 org     $1000
-                        
-                        ; Read in the student grades data file
-1000                    Start_Course_Data
-                        #include "Demo.txt"
-                        ; Demo.txt
-                        ; Terms Test 1, 2 and Final Exam
-                        ; Assignment 1 - 4 and Hybrid Average
-                        
-                        ; Student A
-1000 0a 04 0c           			db	10,4,12
-1003 0a 0a 0a 04 09     			db	10,10,10,4,9
-                        ; Student B
-1008 07 08 14           			db	7,8,20			
-100b 03 00 04 04 03     			db	3,0,4,4,3
-                        ; Student C
-1010 06 06 15           			db	6,6,21
-1013 01 09 08 07 03     			db	1,9,8,7,3
-                        ; Student D
-1018 05 05 19           			db	5,5,25
-101b 05 05 05 05 06     			db	5,5,5,5,6
-                        ; Student E
-1020 04 06 00           			db	4,6,0
-1023 00 00 08 07 00     			db	0,0,8,7,0
-                        ; Student F
-1028 04 06 1c           			db	4,6,28
-102b 09 09 08 07 09     			db	9,9,8,7,9
-                        
-                        
-                        
-                        			
-                        
-                        #endinclude
-
-1030                    End_Course_Data
-                        
-1030                    Students_PF           ; Array big enough to store final pass/fail grades.
-1030                                  ds      (End_Course_Data-Start_Course_Data)/(NUM_PRACTICAL+NUM_THEORY)
-1036                    End_Students_PF
-                        
-                        
-                        ; Code section
-2000                                 org     $2000                   ; RAM address for Code
-2000 cf 20 00                        lds     #STACK
-                        
-2003 16 20 a1                        jsr     Config_Hex_Displays
-                        
-2006 cd 10 00                        ldy     #Start_Course_Data
-                        
-2009 ce 10 30                        ldx     #Students_PF
-                        
-200c                    Next_Student
-200c 8e 10 36                        cpx     #End_Students_PF        ; Have we filled up the students
-200f 24 25                           bhs     Display_PF              ; pass/fail array?
-2011 34                              pshx
-                        
-                        
-2012 c6 05                           ldab    #NUM_PRACTICAL          ; Practical marks calculation.
-2014 16 20 78                        jsr     Calculate_Average
-                        
-2017 16 20 95                        jsr     Pass_Fail
-201a 30                              pulx
-201b 6a 00                           staa    0,x
-201d 34                              pshx
-                        
-201e c6 05                           ldab    #NUM_PRACTICAL          ; Move y to point to the theory
-2020 19 ed                           aby                             ; data for this student.
-                        
-                        
-2022 c6 03                           ldab    #NUM_THEORY             ; Theory marks calculation
-2024 16 20 78                        jsr     Calculate_Average
-                        
-2027 16 20 95                        jsr     Pass_Fail
-                        
-202a c6 03                           ldab    #NUM_THEORY             ; Move y to point to the next
-202c 19 ed                           aby                             ; students's practical data.
-                        
-                        
-202e 30                              pulx                            ; Save the student's final grades.
-202f a4 00                           anda    0,x                     ; AND the grade in A with the
-2031 6a 30                           staa    1,x+                    ; student's practical grade.
-2033 34                              pshx
-                        
-2034 20 d6                           bra     Next_Student            ; Move on to the next student
-                        
-                        
-2036                    Display_PF                                   ; Display the final pass/fail marks.
-2036 ce 10 30                        ldx     #Students_PF
-2039                    Next_Display
-2039 c6 07                           ldab    #DIGIT3_PP0             ; Select the left most digit.
-203b 8e 10 36                        cpx     #End_Students_PF
-203e 24 36                           bhs     Done
-                        
-2040 a6 30                           ldaa    1,x+                    ; Display the pass/fail on the LEDs
-2042 34                              pshx
-2043 16 20 ac                        jsr     PF_HEX_Display
-                        
-2046 86 fa                           ldaa    #DELAY_VALUE            ; Keep P/F on display for 1 second.
-2048 16 20 b7                        jsr     Delay_ms
-204b 86 fa                           ldaa    #DELAY_VALUE
-204d 16 20 b7                        jsr     Delay_ms
-2050 86 fa                           ldaa    #DELAY_VALUE
-2052 16 20 b7                        jsr     Delay_ms
-2055 86 fa                           ldaa    #DELAY_VALUE
-2057 16 20 b7                        jsr     Delay_ms
-                        
-                        
-205a 86 02                           ldaa    #BLANK_DISPLAY          ; Blank the display for 1 second.
-205c 16 20 ac                        jsr     PF_HEX_Display
-                        
-205f 86 fa                                       ldaa    #DELAY_VALUE
-2061 16 20 b7                        jsr     Delay_ms
-                        
-2064 86 fa                                       ldaa    #DELAY_VALUE
-2066 16 20 b7                        jsr     Delay_ms
-                        
-2069 86 fa                                       ldaa    #DELAY_VALUE
-206b 16 20 b7                        jsr     Delay_ms
-                        
-206e 86 fa                                       ldaa    #DELAY_VALUE
-2070 16 20 b7                        jsr     Delay_ms
-                        
-2073 30                              pulx
-                        
-2074 20 c3                           bra     Next_Display            ; Go to next student pass/fail mark.
-2076 20 fe              Done         bra     Done                    ; Maintain blank display forever.
-                        
-                        
-                        
-                        
-                        ; ***** DO NOT CHANGE ANY CODE BELOW HERE *****;
-                        #include Calculate_Average.asm
-                        ; Calculate_Average.asm
-                        ;
-                        ; Author:
-                        ; Student Number:
-                        ; Date:
-                        ;
-                        
-                        ; Purpose:      The purpose of the Calculate_Average_Subroutine is to
-                        ;               calculate the average of ANY number of values by dividing
-                        ;               the sum of the values by 5 and returning an integer value
-                        ;               between 0 and 10
-                        
-                        ; Precondition:  Y points to fist value
-                        ;                B contains numbuer value to average
-                        ;                Average out of 50%
-                        ;
-                        ; Postcondition: Accumulator A - Set to 0
-                        ;                Accumulator B - Set to 0
-                        ;                Accumulator X - Set to 0
-                        ;
-                        ;                Math as follow:
-                        ;               (sum of elements)/DIVISOR
-                        ;               Accumulator D - Contains reminder of the division
-                        ;               Accumulator X - Contains the result
-                        
-0005                    DIVISOR equ     $05
-                        
-2078                    Calculate_Average
-2078 ce 00 05                   ldx     #DIVISOR
-                        
-207b 35                         pshy                 ; Save the value of y
-207c 19 ed                      aby                  ; This loop starts at the end of the array
-207e 03                         dey                  ; and works its way to the beginning.
-                        
-207f 87                         clra
-2080 c7                         clrb
-                        
-2081                    Next
-2081 ad 80                      cpy     0,sp         ; Have we reached Start of Array minus 1?
-2083 25 0c                      blo     Divide       ; Go and divide if we reached the start.
-                        
-2085 3b                         pshd                 ; Save the value of D
-                        
-2086 e6 7f                      ldab    1,y-         ; Retrieve the value.
-2088 87                         clra
-                        
-2089 e3 80                      addd    0,sp
-208b 1b 81                      ins                  ; Clear the stack
-208d 1b 81                      ins
-                        
-208f 20 f0                      bra     Next         ; Add the next value
-                        
-2091                    Divide
-2091 18 10                      idiv
-2093 31                         puly                 ; Get back the original value of Y
-                        
-2094 3d                         rts
-                        #endinclude
-
-                        #include Pass_Fail.asm
-                        ; Pass_Fail.asm
-                        ; Pass_Fail Subroutine
-                        ; Is it a Pass or Fail ?
-                        
-                        ; Author:
-                        ; Student Number:
-                        ; Date:
-                        ;
-                        
-                        ; Purpose:      The purpose of the Pass_Fail_Subroutine is to
-                        ;               determine if the supplied integer is a Pass or a Fail, given:
-                        ;               - a Pass is >= 5
-                        ;               - a Fail is < 5
-                        ;               and return a Pass or Fail indication
-                        
-                        ; Precondition:  Register X contains value to check for pass or fail
-                        ;
-                        ; Postcondition: Overwrite accumulator A with either 0 or 1
-                        ;                0 Indicates that the mark was fail
-                        ;                1 indicate that the mark was pass
-                        
-                        ; Constant
-0005                    MIN     equ     5 ; Average must be at leas 50 to pass the class
-                        
-                        ;code
-2095                    Pass_Fail
-2095 8e 00 05                   cpx     #MIN
-2098 24 04                      bhs     Pass
-209a                    Fail
-209a 86 00                      ldaa    #0
-209c 20 02                      bra     Return
-209e                    Pass
-209e 86 01                      ldaa    #1
-20a0                    Return
-20a0 3d                         rts
-                        
-                        #endinclude
-
-                        #include C:\68HCS12\Lib\Config_Hex_Displays.asm
+2000                    STACK   equ     $2000
+                        
+                        ; Port P (PPT) Display Selection Values  - These values must be filled in
+000e                    DIGIT3_PP0      equ        %1110        ; MSB of the displayed BCD digits (left-most dislay)
+000d                    DIGIT2_PP1      equ     %1101        ; LSB of the displayed BCD digits (2nd display from left)
+                        
+                        ; Delay Subroutine Values
+00fa                    DELAY_VALUE     equ     250        ; Delay value (base 10) 0 - 255 ms
+                                                        ; 125 = 1/8 second, 250 = 1/4 second
+2000                            org     $2000                ; program code
+2000 cf 20 00           Start   lds     #STACK          ; stack location
+                        
+                        ; Configure the Ports
+2003 16 20 30                   jsr     Config_HEX_Displays
+                        
+                        ; Continually Count $00 - $99...$00 - $99 BCD, displaying the values on the Hex Displays
+2006 86 00              Reboot  ldaa    #0              ;counter start at 0
+                        
+2008 36                 Again   psha
+2009 16 20 42                   jsr     Extract_MSB
+200c c6 0e                      ldab    #DIGIT3_PP0
+200e 16 20 5a                   jsr     Hex_Display
+2011 86 fa                      ldaa    #DELAY_VALUE
+2013 16 20 38                   jsr     Delay_ms
+                                
+2016 a6 80                      ldaa    0,sp        ;flash upper nibble
+2018 16 20 47                   jsr     Extract_LSB
+201b c6 0d                      ldab    #DIGIT2_PP1
+201d 16 20 5a                   jsr     Hex_Display
+2020 86 fa                      ldaa    #DELAY_VALUE
+2022 16 20 38                   jsr     Delay_ms
+                                
+2025 32                         pula    ;counter need resetting ?
+2026 81 99                      cmpa    #%10011001
+2028 27 dc                      beq     Reboot
+                        
+202a 8b 01                      adda    #1
+202c 18 07                      daa
+202e 20 d8                      bra     Again
+                                
+                                
+                        ; Subroutines used by program (DO NOT CHANGE ANY OF THE FOLLOWING LINES OF CODE)
+                        #include C:\68HCS12\Lib\Config_HEX_Displays.asm
                         ; Config_HEX_Displays.asm
                         ; David Haley, Professor, 18 Mar 2013
                         ;--------------------------------------
@@ -921,49 +715,14 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         ;    Postcondition:                   -
                         ;        - A is destroyed             -
                         ;--------------------------------------
-20a1                    Config_HEX_Displays
-20a1 86 ff                      ldaa    #$FF    ; port configuration value
-20a3 5a 03                      staa    DDRB    ; Make PORTB output - for Hex Displays' values
-20a5 7a 02 5a                   staa    DDRP    ; Make PTP as output - to select correct Hex Display
-20a8 3d                         rts
+2030                    Config_HEX_Displays
+2030 86 ff                      ldaa    #$FF    ; port configuration value
+2032 5a 03                      staa    DDRB    ; Make PORTB output - for Hex Displays' values
+2034 7a 02 5a                   staa    DDRP    ; Make PTP as output - to select correct Hex Display
+2037 3d                         rts
                         ;- --------------------------------
                         ;     End Config_HEX_Displays     -
                         ;----------------------------------
-                        #endinclude
-
-                        #include PF_HEX_Display.asm
-                        ; PF_HEX_Display.asm
-                        
-                        ; Author:               D. Haley
-                        ; Student Number:       Faculty
-                        ; Date:                 24 March 2014
-                        ;
-                        ; Purpose:              Subroutine to display a value on a Hex Display
-                        ;
-                        ; Preconditions:
-                        ;                       HEX Displays configured for Output
-                        ;                       Value to Display is in Accumulator A
-                        ;                       Hex Display to use is in Accumulator B
-                        ;
-                        ; Postcondition:        X is destroyed
-                        ;                       A is destroyed
-                        ;
-                        ;                 Lookup table for LED segments
-20a9 71 73 80           LEDSEG  db        $71, $73, $80
-                        ;                 F,  P, <blank>
-20ac                    PF_Hex_Display
-20ac ce 20 a9                   ldx     #LEDSEG         ; Point to start of lookup table
-20af a6 e4                      ldaa    a,x             ; Effective address is sum of contents
-                                                        ; of registers A and X
-20b1 7b 02 58                   stab    PTP             ; Selected Hex Display (if this is after
-                                                        ; staa PORTB
-                                                        ; then ALL Hex Dislays will momentarily
-                                                        ; flicker the value)
-20b4 5a 01                      staa    PORTB           ; Display value
-20b6 3d                         rts
-                        ; -----------------------------
-                        ;        END Hex_Display      -
-                        ;------------------------------
                         #endinclude
 
                         #include C:\68HCS12\Lib\Delay_ms.asm
@@ -1015,20 +774,122 @@ eeb2                    WriteMem equ    $EEB2   ; FAR call
                         ;        - A destroyed                -
                         ;        - Y destroyed                -
                         ;--------------------------------------
-20b7                    Delay_ms
-20b7 cd 0f a0                   ldy     #24000/6  ; 6000 x 4 = 24,000 cycles = 1ms
-20ba 03                 Delay   dey               ; this instruction takes 1 cycle
-20bb 26 fd                      bne     Delay     ; this instruction takes 3 cycles
-20bd 43                         deca              ; Delayed 1 ms. Are we finished the total delay time?
-20be 26 f7                      bne     Delay_ms  ; No, delay again
-20c0 3d                         rts
+2038                    Delay_ms
+2038 cd 0f a0                   ldy     #24000/6  ; 6000 x 4 = 24,000 cycles = 1ms
+203b 03                 Delay   dey               ; this instruction takes 1 cycle
+203c 26 fd                      bne     Delay     ; this instruction takes 3 cycles
+203e 43                         deca              ; Delayed 1 ms. Are we finished the total delay time?
+203f 26 f7                      bne     Delay_ms  ; No, delay again
+2041 3d                         rts
                         ;- ------------------------------------
                         ;            End Delay_ms             -
                         ;--------------------------------------
                         #endinclude
 
+                        #include Extract_MSB.asm
+                        ; Extract_MSB.asm
+                        
+                        ; Author:
+                        ; Student Number:
+                        ; Date:
+                        ;
+                        ; Purpose:
+                        ;
+                        ; Preconditions:
+                        ;
+                        ;
+                        ; Postcondition:
+                        ;
+                        ;
+                        ;
+2042                    Extract_MSB
+2042 44                         lsra
+2043 44                         lsra
+2044 44                         lsra
+2045 44                         lsra
+2046 3d                         rts
+                        
+                        ;- ------------------------------------
+                        ;     End Extract_MSB.asm             -
+                        ;--------------------------------------
+                        #endinclude
+
+                        #include Extract_LSB.asm
+                        ; Extract_LSB.asm
+                        
+                        ; Author:
+                        ; Student Number:
+                        ; Date:
+                        ;
+                        ; Purpose:
+                        ;
+                        ; Preconditions:
+                        ;
+                        ;
+                        ; Postcondition:
+                        ;
+                        ;
+                        ;
+000f                    MASK    equ     %00001111
+                        
+2047                    Extract_LSB
+2047 84 0f                      anda    #MASK
+2049 3d                         rts
+                        
+                        
+                        ;- ------------------------------------
+                        ;     End Extract_LSB.asm             -
+                        ;--------------------------------------
+                        #endinclude
+
+                        #include Hex_Display.asm
+                        ; HEX_Display.asm
+                        
+                        ; Author:               D. Haley
+                        ; Student Number:       Faculty
+                        ; Date:                 31 March 2018
+                        ;
+                        ; Purpose:              A Subroutine to display a value on a Hex Display
+                        ;
+                        ; Preconditions:        HEX Displays configured for Output
+                        ;                       - Value to Display is in Accumulator A
+                        ;                       - Hex Display to use is in Accumulator B
+                        ;
+                        ; Notes:                Select the Hex Display and then display the value;
+                        ;                       otherwise, excessive flicker will occur if this order
+                        ;                       of operations is not followed
+                        ;
+                        ; Use:                  First, place this subroutine in your source code folder
+                        
+                        ;                       and then type #include HEX_Display.asm
+                        ;                       in your source code just before the assembler end directive
+                        ;
+                        ;                       to call, use jsr Hex_Display
+                        ;
+                        ; Postcondition:        X is destroyed
+                        ;                       A is destroyed
+                        ;
+                        ;                 Lookup table for LED segments
+204a 3f 06 5b 4f 66 6d  LEDSEG  db        $3f,$06,$5b,$4f,$66,$6d,$7d,$07,$7f,$6f,$77,$7C,$39,$5E,$79,$71
+     7d 07 7f 6f 77 7c
+     39 5e 79 71
+                        ;                  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  A,  b,  C, d,  E,  F
+                        ;
+205a                    Hex_Display
+205a ce 20 4a                   ldx     #LEDSEG         ; Point to start of lookup table
+205d a6 e4                      ldaa    a,x             ; Effective address is sum of contents of registers A and X
+205f 7b 02 58                   stab    PTP             ; Selected Hex Display (if this is after staa PORTB
+                                                        ; then ALL Hex Dislays will momentarily flicker the value)
+2062 5a 01                      staa    PORTB           ; Display value
+2064 3d                         rts
+                        ; -----------------------------
+                        ;        END Hex_Display      -
+                        ;------------------------------
+                        #endinclude
+
+                        
                                 end
 
-Executed: Wed Apr 18 14:59:47 2018
-Total cycles: 281, Total bytes: 241
+Executed: Mon Apr 16 18:31:55 2018
+Total cycles: 132, Total bytes: 101
 Total errors: 0, Total warnings: 0

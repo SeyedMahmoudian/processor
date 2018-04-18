@@ -30,35 +30,35 @@ as12, an absolute assembler for Motorola MCU's, version 1.2h
                         
 0000                    Calculate_Average
 0000 ce 00 05                   ldx     #DIVISOR
-                                
-0003 35                         pshy            ;Save value y
-0004 19 ed                      aby             ;loop from the end of array
-0006 03                         dey             ;loop back to the beginning
-                                
+                        
+0003 35                         pshy                 ; Save the value of y
+0004 19 ed                      aby                  ; This loop starts at the end of the array
+0006 03                         dey                  ; and works its way to the beginning.
+                        
 0007 87                         clra
 0008 c7                         clrb
                         
 0009                    Next
-0009 ad 80                      cpy     0,sp    ;are we at start of array -1 ?
-000b 25 0c                      blo     Divide  ;divide if so
-                                
-000d 3b                         pshd
-                                
-000e e6 7f                      ldab    1,y-    ;Get the value
+0009 ad 80                      cpy     0,sp         ; Have we reached Start of Array minus 1?
+000b 25 0c                      blo     Divide       ; Go and divide if we reached the start.
+                        
+000d 3b                         pshd                 ; Save the value of D
+                        
+000e e6 7f                      ldab    1,y-         ; Retrieve the value.
 0010 87                         clra
-                                
-0011 e3 80                      addd     0,sp
-0013 1b 81                      ins             ;clear up the stack
+                        
+0011 e3 80                      addd    0,sp
+0013 1b 81                      ins                  ; Clear the stack
 0015 1b 81                      ins
-                                
-0017 20 f0                      bra     Next    ;Add the next value
+                        
+0017 20 f0                      bra     Next         ; Add the next value
                         
 0019                    Divide
 0019 18 10                      idiv
-001b 31                         puly            ;Get back the orginal value of Y
+001b 31                         puly                 ; Get back the original value of Y
                         
 001c 3d                         rts
 
-Executed: Mon Apr 16 19:00:05 2018
+Executed: Wed Apr 18 14:59:36 2018
 Total cycles: 45, Total bytes: 29
 Total errors: 0, Total warnings: 0

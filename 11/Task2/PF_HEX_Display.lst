@@ -18,7 +18,7 @@ as12, an absolute assembler for Motorola MCU's, version 1.2h
                         ;                       A is destroyed
                         ;
                         ;                 Lookup table for LED segments
-0000 71 73 80           LEDSEG  db        $71,$73,$80
+0000 71 73 80           LEDSEG  db        $71, $73, $80
                         ;                 F,  P, <blank>
 0003                    PF_Hex_Display
 0003 ce 00 00                   ldx     #LEDSEG         ; Point to start of lookup table
@@ -36,5 +36,5 @@ PF_HEX_Display.asm:28: Error - Symbol PORTB is undefined.
                         ;        END Hex_Display      -
                         ;------------------------------
 
-Executed: Mon Apr 16 19:00:40 2018
+Executed: Wed Apr 18 14:59:53 2018
 Total errors: 2, Total warnings: 0

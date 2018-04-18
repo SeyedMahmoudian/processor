@@ -1,0 +1,50 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ; HEX_Display.asm
+                        
+                        ; Author:               D. Haley
+                        ; Student Number:       Faculty
+                        ; Date:                 31 March 2018
+                        ;
+                        ; Purpose:              A Subroutine to display a value on a Hex Display
+                        ;
+                        ; Preconditions:        HEX Displays configured for Output
+                        ;                       - Value to Display is in Accumulator A
+                        ;                       - Hex Display to use is in Accumulator B
+                        ;
+                        ; Notes:                Select the Hex Display and then display the value;
+                        ;                       otherwise, excessive flicker will occur if this order
+                        ;                       of operations is not followed
+                        ;
+                        ; Use:                  First, place this subroutine in your source code folder
+                        
+                        ;                       and then type #include HEX_Display.asm
+                        ;                       in your source code just before the assembler end directive
+                        ;
+                        ;                       to call, use jsr Hex_Display
+                        ;
+                        ; Postcondition:        X is destroyed
+                        ;                       A is destroyed
+                        ;
+                        ;                 Lookup table for LED segments
+0000 3f 06 5b 4f 66 6d  LEDSEG  db        $3f,$06,$5b,$4f,$66,$6d,$7d,$07,$7f,$6f,$77,$7C,$39,$5E,$79,$71
+     7d 07 7f 6f 77 7c
+     39 5e 79 71
+                        ;                  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  A,  b,  C, d,  E,  F
+                        ;
+0010                    Hex_Display
+0010 ce 00 00                   ldx     #LEDSEG         ; Point to start of lookup table
+0013 a6 e4                      ldaa    a,x             ; Effective address is sum of contents of registers A and X
+HEX_Display.asm:34: Error - Symbol PTP is undefined.
+0015 5b 00                      stab    PTP             ; Selected Hex Display (if this is after staa PORTB
+                                                        ; then ALL Hex Dislays will momentarily flicker the value)
+HEX_Display.asm:36: Error - Symbol PORTB is undefined.
+0017 5a 00                      staa    PORTB           ; Display value
+0019 3d                         rts
+                        ; -----------------------------
+                        ;        END Hex_Display      -
+                        ;------------------------------
+
+Executed: Mon Apr 16 18:32:32 2018
+Total errors: 2, Total warnings: 0

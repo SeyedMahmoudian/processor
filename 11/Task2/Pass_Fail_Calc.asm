@@ -14,112 +14,125 @@
 ;               Note that there is only ONE 'P' or 'F' displayed per student
 ;
 ; Program Constants
-DELAY_VALUE     equ     250
-STACK           equ     $2000
+DELAY_VALUE     equ     250     ; 250 milliseconds delay time.
+STACK           equ     $2000   ; Start of stack.
 
-DIGIT3_PP0      equ     %0111
+DIGIT3_PP0      equ     %0111   ; MSB of the displayed BCD digits (left-most dislay)
 
-BLANK           equ     1
+BLANK_DISPLAY   equ     2       ; Used for the PF_Hex_Display subroutine.
 
-PRACTICAL       equ     5       ; number of practical assesments
-THEORY          equ     3       ; number of theory assesments
+NUM_PRACTICAL   equ     5       ; The number of practical assessments
+NUM_THEORY      equ     3       ; The number of theory assessments.
+
+
 
 
 ; data section
-                org     $1000
-; Read in Data File
+             org     $1000
+
+; Read in the student grades data file
 Start_Course_Data
 #include "Demo.txt"
-;uncomment following line for final demo
-; #include "Thu_10-12_Marks.txt"
 End_Course_Data
 
-Students_Marks
-        ds      (End_Course_Data-Start_Course_Data)/(PRACTICAL+THEORY)
-End_Students_Marks
+Students_PF           ; Array big enough to store final pass/fail grades.
+              ds      (End_Course_Data-Start_Course_Data)/(NUM_PRACTICAL+NUM_THEORY)
+End_Students_PF
 
-; code section
-        org     $2000           ; RAM address for Code
-        lds     #STACK          ; Stack
-        jsr     Config_Hex_Displays ; Configure HEX display by calling the subrotin
-        ldy     #Start_Course_Data  ; Point y to the beginning of file
-        ldx     #Students_Marks     ; Point x to the beginning of array
+
+; Code section
+             org     $2000                   ; RAM address for Code
+             lds     #STACK
+
+             jsr     Config_Hex_Displays
+
+             ldy     #Start_Course_Data
+
+             ldx     #Students_PF
 
 Next_Student
-        cpx     #End_Students_Marks     ;End of students
-        bhs     Display_Mark            ;pass/fail array?
-        pshx
-        
-        ldab    #PRACTICAL
-        jsr     Calculate_Average
-        
-        jsr     Pass_Fail
-        pulx
-        staa    0,x
-        pshx
-        
-        ldab    #PRACTICAL      ; Move y to point to theory
-        aby                     ; data for this student
-        
-        ldab    #THEORY         ; Theory calculation
-        jsr     Calculate_Average
-        
-        jsr     Pass_Fail
-        
-        ldab    #THEORY         ; Move y to point the next
-        aby                     ; students practical data
-        
-        pulx                    ; Save student final grades
-        anda    0,x             ; AND the grade in A with the
-        staa    1,x+            ; Student's practical grade
-        pshx
-        bra     Next            ; Move to next student
+             cpx     #End_Students_PF        ; Have we filled up the students
+             bhs     Display_PF              ; pass/fail array?
+             pshx
 
-Display_Mark
-        ldx     #Students_Marks
+
+             ldab    #NUM_PRACTICAL          ; Practical marks calculation.
+             jsr     Calculate_Average
+
+             jsr     Pass_Fail
+             pulx
+             staa    0,x
+             pshx
+
+             ldab    #NUM_PRACTICAL          ; Move y to point to the theory
+             aby                             ; data for this student.
+
+
+             ldab    #NUM_THEORY             ; Theory marks calculation
+             jsr     Calculate_Average
+
+             jsr     Pass_Fail
+
+             ldab    #NUM_THEORY             ; Move y to point to the next
+             aby                             ; students's practical data.
+
+
+             pulx                            ; Save the student's final grades.
+             anda    0,x                     ; AND the grade in A with the
+             staa    1,x+                    ; student's practical grade.
+             pshx
+
+             bra     Next_Student            ; Move on to the next student
+
+
+Display_PF                                   ; Display the final pass/fail marks.
+             ldx     #Students_PF
 Next_Display
-        ldab    #DIGIT3_PP0
-        cpx     #End_Students_Marks
-        bhs     Done
-        
-        ldaa    1,x+
-        pshx
-        jsr     PF_HEX_DISPLAY
-        ;Keep pass or fail on display for 1 second
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+             ldab    #DIGIT3_PP0             ; Select the left most digit.
+             cpx     #End_Students_PF
+             bhs     Done
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+             ldaa    1,x+                    ; Display the pass/fail on the LEDs
+             pshx
+             jsr     PF_HEX_Display
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+             ldaa    #DELAY_VALUE            ; Keep P/F on display for 1 second.
+             jsr     Delay_ms
+             ldaa    #DELAY_VALUE
+             jsr     Delay_ms
+             ldaa    #DELAY_VALUE
+             jsr     Delay_ms
+             ldaa    #DELAY_VALUE
+             jsr     Delay_ms
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
-        ; blank display for 1 second
-        ldaa    #BLANK
-        jsr     PF_HEX_Display
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+             ldaa    #BLANK_DISPLAY          ; Blank the display for 1 second.
+             jsr     PF_HEX_Display
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+                         ldaa    #DELAY_VALUE
+             jsr     Delay_ms
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
+                         ldaa    #DELAY_VALUE
+             jsr     Delay_ms
 
-        ldaa    #DELAY_VALUE
-        jsr     Delay_ms
-        
-        pulx
-        bra     Next_Display
-Done    bra     Done                            ; yes
+                         ldaa    #DELAY_VALUE
+             jsr     Delay_ms
 
+                         ldaa    #DELAY_VALUE
+             jsr     Delay_ms
+
+             pulx
+
+             bra     Next_Display            ; Go to next student pass/fail mark.
+Done         bra     Done                    ; Maintain blank display forever.
+
+
+
+
+; ***** DO NOT CHANGE ANY CODE BELOW HERE *****;
 #include Calculate_Average.asm
 #include Pass_Fail.asm
+#include C:\68HCS12\Lib\Config_Hex_Displays.asm
 #include PF_HEX_Display.asm
-#include C:\68HCS12\\Lib\Config_Hex_Displays.asm
 #include C:\68HCS12\Lib\Delay_ms.asm
         end

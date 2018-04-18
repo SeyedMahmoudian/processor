@@ -38,6 +38,6 @@ as12, an absolute assembler for Motorola MCU's, version 1.2h
 000b 3d                         rts
                         
 
-Executed: Mon Apr 16 19:00:12 2018
+Executed: Wed Apr 18 14:59:42 2018
 Total cycles: 17, Total bytes: 12
 Total errors: 0, Total warnings: 0

@@ -1,0 +1,32 @@
+
+as12, an absolute assembler for Motorola MCU's, version 1.2h
+
+                        ; Extract_MSB.asm
+                        
+                        ; Author:
+                        ; Student Number:
+                        ; Date:
+                        ;
+                        ; Purpose:
+                        ;
+                        ; Preconditions:
+                        ;
+                        ;
+                        ; Postcondition:
+                        ;
+                        ;
+                        ;
+0000                    Extract_MSB
+0000 44                         lsra
+0001 44                         lsra
+0002 44                         lsra
+0003 44                         lsra
+0004 3d                         rts
+                        
+                        ;- ------------------------------------
+                        ;     End Extract_MSB.asm             -
+                        ;--------------------------------------
+
+Executed: Mon Apr 16 18:32:21 2018
+Total cycles: 9, Total bytes: 5
+Total errors: 0, Total warnings: 0
